@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING") // Used for migrations
+}
+
+model Idea {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  category    String
+  department  String
+  author_id   String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  likes       Int      @default(0)
+  status      String   @default("pending") // pending, approved, implemented
+  
+  // Relations
+  likes_by    IdeaLike[]
+  comments    Comment[]
+
+  @@index([department])
+  @@index([category])
+  @@index([author_id])
+}
+
+model IdeaLike {
+  id        Int      @id @default(autoincrement())
+  idea_id   Int
+  user_id   String
+  created_at DateTime @default(now())
+  
+  // Relations
+  idea      Idea     @relation(fields: [idea_id], references: [id])
+
+  @@unique([idea_id, user_id])
+  @@index([user_id])
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  idea_id    Int
+  user_id    String
+  content    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  
+  // Relations
+  idea       Idea     @relation(fields: [idea_id], references: [id])
+
+  @@index([user_id])
+}
+
+model Department {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+} 
