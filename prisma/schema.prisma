@@ -26,6 +26,7 @@ model Idea {
   // Relations
   likes_by    IdeaLike[]
   comments    Comment[]
+  notifications Notification[]
 
   @@index([department])
   @@index([category])
@@ -65,4 +66,19 @@ model Department {
   description String?
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  user_id    String
+  type       String   // 'like', 'comment', 'idea'
+  message    String
+  idea_id    Int?
+  read       Boolean  @default(false)
+  created_at DateTime @default(now())
+  
+  idea       Idea?    @relation(fields: [idea_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([idea_id])
 } 

@@ -3,11 +3,13 @@
 import { motion } from "framer-motion"
 import { useUser } from "@clerk/nextjs"
 import { IdeasGrid } from "../../components/ideas-grid"
-import { AddIdeaForm } from "../../components/add-idea-form"
+import { AddIdeaDialog } from "../../components/add-idea-dialog"
+import { useIdeas } from "@/hooks/use-ideas"
 
 export default function IdeasPage() {
   const { user } = useUser()
   const department = user?.publicMetadata?.department as string || ""
+  const { mutate } = useIdeas(department)
   
   return (
     <motion.div 
@@ -15,21 +17,21 @@ export default function IdeasPage() {
       animate={{ opacity: 1, y: 0 }}
       className="container mx-auto px-6 py-8"
     >
-      <motion.h1 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="text-4xl font-bold text-indigo-900 mb-8"
-      >
-        Ideas Dashboard
-      </motion.h1>
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
-          <IdeasGrid department={department} />
-        </div>
-        <div>
-          <AddIdeaForm department={department} />
-        </div>
+      <div className="flex justify-between items-center mb-8">
+        <motion.h1 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-4xl font-bold text-indigo-900"
+        >
+          Ideas Dashboard
+        </motion.h1>
+        <AddIdeaDialog 
+          department={department} 
+          onIdeaAdded={() => mutate()}
+        />
       </div>
+      
+      <IdeasGrid department={department} />
     </motion.div>
   )
 } 
