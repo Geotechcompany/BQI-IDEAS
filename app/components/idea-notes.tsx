@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { Reorder } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { StickyNote } from "./sticky-note"
 import { Plus } from "lucide-react"
@@ -61,11 +60,6 @@ export function IdeaNotes({ ideaId, initialNotes = [], onNotesChange }: IdeaNote
     onNotesChange?.(updatedNotes)
   }
 
-  const handleReorder = (reorderedNotes: Note[]) => {
-    setNotes(reorderedNotes)
-    onNotesChange?.(reorderedNotes)
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -81,26 +75,18 @@ export function IdeaNotes({ ideaId, initialNotes = [], onNotesChange }: IdeaNote
         </Button>
       </div>
 
-      <Reorder.Group
-        axis="y"
-        values={notes}
-        onReorder={handleReorder}
-        className="space-y-4"
-        layoutScroll
-      >
-        <div className="space-y-4">
-          {notes.map((note) => (
-            <StickyNote
-              key={note.id}
-              id={note.id}
-              content={note.content}
-              color={note.color}
-              onSave={handleSaveNote}
-              onDelete={handleDeleteNote}
-            />
-          ))}
-        </div>
-      </Reorder.Group>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {notes.map((note) => (
+          <StickyNote
+            key={note.id}
+            id={note.id}
+            content={note.content}
+            color={note.color}
+            onSave={handleSaveNote}
+            onDelete={handleDeleteNote}
+          />
+        ))}
+      </div>
     </div>
   )
 } 
