@@ -53,7 +53,7 @@ export default function DepartmentsPage() {
 
     try {
       await clerkUser?.update({
-        publicMetadata: {
+        unsafeMetadata: {
           department: departmentId,
         },
       });
