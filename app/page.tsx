@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, Lightbulb, Users, Zap, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useUser } from "@clerk/nextjs";
 
 const features = [
   {
@@ -59,6 +60,8 @@ const itemVariants = {
 }
 
 export default function LandingPage() {
+  const { user } = useUser();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {/* Hero Section */}
@@ -81,12 +84,20 @@ export default function LandingPage() {
                 className="w-32"
               />
               <div className="space-x-4">
-                <Link href="/sign-in">
-                  <Button variant="ghost">Sign In</Button>
-                </Link>
-                <Link href="/sign-up">
-                  <Button>Get Started</Button>
-                </Link>
+                {user ? (
+                  <Link href="/dashboard">
+                    <Button>Dashboard</Button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/sign-in">
+                      <Button variant="ghost">Sign In</Button>
+                    </Link>
+                    <Link href="/sign-up">
+                      <Button>Get Started</Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </nav>

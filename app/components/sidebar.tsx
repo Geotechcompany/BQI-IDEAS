@@ -12,9 +12,11 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useUser, useClerk } from "@clerk/nextjs";
 
 interface SidebarProps {
   isExpanded: boolean;
@@ -23,6 +25,8 @@ interface SidebarProps {
 
 export function Sidebar({ isExpanded, onExpandedChange }: SidebarProps) {
   const pathname = usePathname();
+  const { user } = useUser();
+  const clerk = useClerk();
 
   const navItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
@@ -112,7 +116,6 @@ export function Sidebar({ isExpanded, onExpandedChange }: SidebarProps) {
                       !isExpanded && "transform scale-110"
                     )}
                   />
-
                   <AnimatePresence initial={false}>
                     {isExpanded && (
                       <motion.span
@@ -125,7 +128,6 @@ export function Sidebar({ isExpanded, onExpandedChange }: SidebarProps) {
                       </motion.span>
                     )}
                   </AnimatePresence>
-
                   {!isExpanded && (
                     <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
                       {item.label}
@@ -137,6 +139,21 @@ export function Sidebar({ isExpanded, onExpandedChange }: SidebarProps) {
           );
         })}
       </nav>
+      <div className="mt-auto p-4">
+        <Button
+          onClick={() => clerk.signOut()}
+          className="w-full bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200 rounded-lg py-2 flex items-center justify-center"
+        >
+          {isExpanded ? (
+            <>
+              <LogOut className="h-8 w-8 mr-2" />
+              <span>Logout</span>
+            </>
+          ) : (
+            <LogOut className="h-8 w-8" />
+          )}
+        </Button>
+      </div>
     </div>
   );
 }
