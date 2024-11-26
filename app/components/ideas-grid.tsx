@@ -98,109 +98,123 @@ export function IdeasGrid({ department }: IdeasGridProps) {
   };
 
   return (
-    <div className="grid gap-6 md:grid-cols-2">
-      {ideas.map((idea) => (
-        <motion.div
-          key={idea.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileHover={{ y: -5 }}
-          transition={{ duration: 0.2 }}
-        >
-          <Card className="overflow-hidden border-2 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50">
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-xl text-indigo-900 font-bold">
-                    {idea.title}
-                  </CardTitle>
-                  <p className="text-sm text-indigo-600 mt-1">
-                    Posted by {idea.author_id === user?.id ? 'You' : 'User'}
-                  </p>
+    <>
+      <div className="grid gap-6 md:grid-cols-2">
+        {ideas.map((idea) => (
+          <motion.div
+            key={idea.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Card className="overflow-hidden border-2 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-xl text-indigo-900 font-bold">
+                      {idea.title}
+                    </CardTitle>
+                    <p className="text-sm text-indigo-600 mt-1">
+                      Posted by {idea.author_id === user?.id ? 'You' : 'User'}
+                    </p>
+                  </div>
+                  {user?.id === idea.author_id && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setEditingIdea(idea.id)}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-red-600"
+                          onClick={() => handleDelete(idea.id)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
-                {user?.id === idea.author_id && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setEditingIdea(idea.id)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-red-600"
-                        onClick={() => handleDelete(idea.id)}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </div>
-            </CardHeader>
+              </CardHeader>
 
-            <CardContent className="pt-6">
-              <p className="text-gray-600 leading-relaxed">{idea.description}</p>
-              
-              <div className="mt-6 flex justify-between items-center">
-                <div className="flex gap-3">
-                  <Badge 
-                    variant="outline" 
-                    className={`${getCategoryColor(idea.category)} px-3 py-1`}
-                  >
-                    {idea.category}
-                  </Badge>
-                  <Badge 
-                    variant="outline" 
-                    className="bg-gray-50 text-gray-600 px-3 py-1"
-                  >
-                    {idea.status}
-                  </Badge>
+              <CardContent className="pt-6">
+                <p className="text-gray-600 leading-relaxed">{idea.description}</p>
+                
+                <div className="mt-6 flex justify-between items-center">
+                  <div className="flex gap-3">
+                    <Badge 
+                      variant="outline" 
+                      className={`${getCategoryColor(idea.category)} px-3 py-1`}
+                    >
+                      {idea.category}
+                    </Badge>
+                    <Badge 
+                      variant="outline" 
+                      className="bg-gray-50 text-gray-600 px-3 py-1"
+                    >
+                      {idea.status}
+                    </Badge>
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    {new Date(idea.created_at).toLocaleDateString()}
+                  </span>
                 </div>
-                <span className="text-sm text-gray-500">
-                  {new Date(idea.created_at).toLocaleDateString()}
-                </span>
-              </div>
-            </CardContent>
+              </CardContent>
 
-            <CardFooter className="flex flex-col gap-4 bg-gradient-to-r from-indigo-50/50 to-purple-50/50">
-              <div className="flex justify-between w-full">
-                <div className="flex gap-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleLike(idea.id)}
-                    className={`hover:text-red-500 transition-colors ${
-                      idea.likes_by.some(like => like.user_id === user?.id)
-                        ? "text-red-500"
-                        : "text-gray-600"
-                    }`}
-                  >
-                    <Heart className={`h-4 w-4 mr-1 ${
-                      idea.likes_by.some(like => like.user_id === user?.id)
-                        ? "fill-current"
-                        : ""
-                    }`} />
-                    {idea._count.likes_by}
-                  </Button>
-                  
-                  <CommentSection
-                    ideaId={idea.id}
-                    comments={idea.comments}
-                    onCommentAdded={() => mutate()}
-                    onCommentDeleted={() => mutate()}
-                  />
+              <CardFooter className="flex flex-col gap-4 bg-gradient-to-r from-indigo-50/50 to-purple-50/50">
+                <div className="flex justify-between w-full">
+                  <div className="flex gap-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleLike(idea.id)}
+                      className={`hover:text-red-500 transition-colors ${
+                        idea.likes_by.some(like => like.user_id === user?.id)
+                          ? "text-red-500"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      <Heart className={`h-4 w-4 mr-1 ${
+                        idea.likes_by.some(like => like.user_id === user?.id)
+                          ? "fill-current"
+                          : ""
+                      }`} />
+                      {idea._count.likes_by}
+                    </Button>
+                    
+                    <CommentSection
+                      ideaId={idea.id}
+                      comments={idea.comments}
+                      onCommentAdded={() => mutate()}
+                      onCommentDeleted={() => mutate()}
+                    />
+                  </div>
                 </div>
-              </div>
-            </CardFooter>
-          </Card>
-        </motion.div>
-      ))}
-    </div>
+              </CardFooter>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      <EditIdeaDialog
+        ideaId={editingIdea}
+        open={!!editingIdea}
+        onOpenChange={(open) => {
+          if (!open) setEditingIdea(null);
+        }}
+        onSave={() => {
+          mutate(); // Refresh the ideas list after saving
+          setEditingIdea(null);
+        }}
+      />
+    </>
   );
 }
 

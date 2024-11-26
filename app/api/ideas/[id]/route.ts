@@ -68,13 +68,28 @@ export async function GET(
 ) {
   try {
     const idea = await prisma.idea.findUnique({
-      where: { id: parseInt(params.id) }
-    })
+      where: { id: parseInt(params.id) },
+      include: {
+        likes_by: true,
+        comments: {
+          orderBy: {
+            created_at: "desc"
+          },
+          select: {
+            id: true,
+            content: true,
+            user_id: true,
+            created_at: true
+          }
+        }
+      }
+    });
 
-    if (!idea) return NextResponse.json({ error: 'Idea not found' }, { status: 404 })
-    return NextResponse.json(idea)
+    if (!idea) return NextResponse.json({ error: 'Idea not found' }, { status: 404 });
+
+    return NextResponse.json(idea);
   } catch (error) {
-    console.error('Failed to fetch idea:', error)
-    return NextResponse.json({ error: 'Failed to fetch idea' }, { status: 500 })
+    console.error('Failed to fetch idea:', error);
+    return NextResponse.json({ error: 'Failed to fetch idea' }, { status: 500 });
   }
 } 
