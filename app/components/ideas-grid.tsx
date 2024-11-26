@@ -1,20 +1,36 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs"
+import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import { useIdeas } from "@/hooks/use-ideas";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  MoreVertical,
+  Pencil,
+  Trash2,
+  Heart,
+  MessageSquare,
+  Eye,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
 import { EditIdeaDialog } from "./edit-idea-dialog";
+import toast from "react-hot-toast";
+import { Idea, Like } from "@/types/ideas";
 
 interface IdeasGridProps {
   department?: string;
@@ -24,6 +40,9 @@ export function IdeasGrid({ department }: IdeasGridProps) {
   const { user } = useUser();
   const { ideas, isLoading, isError, mutate } = useIdeas(department);
   const [editingIdea, setEditingIdea] = useState<number | null>(null);
+  const [commentingOn, setCommentingOn] = useState<number | null>(null);
+  const [comment, setComment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (isLoading) return <IdeasGridSkeleton />;
   if (isError) return <div>Failed to load ideas</div>;
@@ -32,13 +51,48 @@ export function IdeasGrid({ department }: IdeasGridProps) {
   const handleDelete = async (ideaId: number) => {
     try {
       const response = await fetch(`/api/ideas/${ideaId}`, {
-        method: 'DELETE'
+        method: "DELETE",
       });
 
-      if (!response.ok) throw new Error('Failed to delete idea');
+      if (!response.ok) throw new Error("Failed to delete idea");
       mutate(); // Refresh the ideas list
     } catch (error) {
-      console.error('Failed to delete idea:', error);
+      console.error("Failed to delete idea:", error);
+    }
+  };
+
+  const handleLike = async (ideaId: number) => {
+    try {
+      const response = await fetch(`/api/ideas/${ideaId}/like`, {
+        method: "POST",
+      });
+      if (!response.ok) throw new Error("Failed to like idea");
+      mutate();
+    } catch (error) {
+      toast.error("Failed to like idea");
+    }
+  };
+
+  const handleComment = async (ideaId: number) => {
+    if (!comment.trim()) return;
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`/api/ideas/${ideaId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: comment }),
+      });
+      if (!response.ok) throw new Error("Failed to add comment");
+
+      setComment("");
+      setCommentingOn(null);
+      mutate();
+      toast.success("Comment added successfully");
+    } catch (error) {
+      toast.error("Failed to add comment");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -61,7 +115,7 @@ export function IdeasGrid({ department }: IdeasGridProps) {
                       <Pencil className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       className="text-red-600"
                       onClick={() => handleDelete(idea.id)}
                     >
@@ -77,12 +131,85 @@ export function IdeasGrid({ department }: IdeasGridProps) {
               <div className="mt-4 flex justify-between items-center text-sm text-gray-500">
                 <div className="flex gap-2">
                   <Badge variant="secondary">{idea.category}</Badge>
-                  <Badge variant="outline">{idea._count.likes_by} likes</Badge>
-                  <Badge variant="outline">{idea._count.comments} comments</Badge>
                 </div>
                 <span>{new Date(idea.created_at).toLocaleDateString()}</span>
               </div>
             </CardContent>
+            <CardFooter className="flex flex-col gap-4">
+              <div className="flex justify-between w-full">
+                <div className="flex gap-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleLike(idea.id)}
+                    className={
+                      idea.likes_by.some(like => like.user_id === user?.id)
+                        ? "text-red-500"
+                        : ""
+                    }
+                  >
+                    <Heart className="h-4 w-4 mr-1" />
+                    {idea._count.likes_by}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCommentingOn(commentingOn === idea.id ? null : idea.id)}
+                  >
+                    <MessageSquare className="h-4 w-4 mr-1" />
+                    {idea._count.comments}
+                  </Button>
+                </div>
+              </div>
+
+              {(commentingOn === idea.id || idea.comments.length > 0) && (
+                <div className="w-full space-y-4">
+                  {idea.comments.map((comment) => (
+                    <div 
+                      key={comment.id} 
+                      className="bg-gray-50 rounded-lg p-3 text-sm"
+                    >
+                      <div className="flex justify-between items-start mb-1">
+                        <span className="font-medium">
+                          {comment.user_id === user?.id ? 'You' : 'User'}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(comment.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-gray-600">{comment.content}</p>
+                    </div>
+                  ))}
+
+                  {commentingOn === idea.id && (
+                    <div className="space-y-2">
+                      <Textarea
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        placeholder="Write a comment..."
+                        className="mb-2"
+                      />
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCommentingOn(null)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleComment(idea.id)}
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? "Posting..." : "Post Comment"}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardFooter>
           </Card>
         ))}
       </div>
@@ -92,8 +219,8 @@ export function IdeasGrid({ department }: IdeasGridProps) {
         open={!!editingIdea}
         onOpenChange={(open) => !open && setEditingIdea(null)}
         onSave={() => {
-          setEditingIdea(null)
-          mutate()
+          setEditingIdea(null);
+          mutate();
         }}
       />
     </>

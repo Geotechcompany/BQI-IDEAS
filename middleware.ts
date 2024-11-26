@@ -13,7 +13,7 @@ export default clerkMiddleware(
       await auth.protect()
     }
   },
-  { debug: process.env.NODE_ENV === 'development' }
+  { debug: false }
 )
 
 export const config = {

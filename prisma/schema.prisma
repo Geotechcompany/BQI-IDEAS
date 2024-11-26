@@ -22,6 +22,7 @@ model Idea {
   updated_at  DateTime @updatedAt
   likes       Int      @default(0)
   status      String   @default("pending") // pending, approved, implemented
+  comments_count Int   @default(0)
   
   // Relations
   likes_by    IdeaLike[]

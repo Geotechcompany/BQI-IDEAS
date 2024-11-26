@@ -23,14 +23,18 @@ export default function DashboardPage() {
     },
     {
       title: "Implemented",
-      value: ideas?.filter(idea => idea.status === "implemented").length || 0,
+      value: Array.isArray(ideas) 
+        ? ideas.filter(idea => idea.status === "implemented").length 
+        : 0,
       icon: BarChart2,
       color: "text-green-500",
       bgColor: "bg-green-50"
     },
     {
       title: "Contributors",
-      value: [...new Set(ideas?.map(idea => idea.author_id) || [])].length,
+      value: Array.isArray(ideas) 
+        ? [...new Set(ideas.map(idea => idea.author_id))].length 
+        : 0,
       icon: Users,
       color: "text-purple-500",
       bgColor: "bg-purple-50"

@@ -16,11 +16,19 @@ import {
   Cell,
 } from "recharts";
 import { useAnalytics } from "@/hooks/use-analytics";
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton";
 
 const COLORS = ["#4f46e5", "#7c3aed", "#2563eb", "#06b6d4", "#10b981"];
 
-function StatCard({ title, value, isLoading }: { title: string, value?: string | number, isLoading: boolean }) {
+function StatCard({
+  title,
+  value,
+  isLoading,
+}: {
+  title: string;
+  value?: string | number;
+  isLoading: boolean;
+}) {
   return (
     <Card>
       <CardHeader>
@@ -30,11 +38,11 @@ function StatCard({ title, value, isLoading }: { title: string, value?: string |
         {isLoading ? (
           <Skeleton className="h-10 w-20" />
         ) : (
-          <p className="text-4xl font-bold text-indigo-600">{value || '0'}</p>
+          <p className="text-4xl font-bold text-indigo-600">{value || "0"}</p>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export default function AnalyticsPage() {
@@ -42,16 +50,18 @@ export default function AnalyticsPage() {
   const department = user?.publicMetadata?.department as string;
   const { data, isLoading } = useAnalytics(department);
 
-  const barData = data?.monthlyIdeas?.map((item) => ({
-    month: new Date(item.month).toLocaleString("default", { month: "short" }),
-    submitted: item.submitted,
-    implemented: item.implemented,
-  })) || Array(6).fill({ month: '-', submitted: 0, implemented: 0 })
+  const barData =
+    data?.monthlyIdeas?.map((item) => ({
+      month: new Date(item.month).toLocaleString("default", { month: "short" }),
+      submitted: item.submitted,
+      implemented: item.implemented,
+    })) || Array(6).fill({ month: "-", submitted: 0, implemented: 0 });
 
-  const pieData = data?.departmentStats?.map((item) => ({
-    name: item.department,
-    value: item._count._all,
-  })) || Array(3).fill({ name: 'No Data', value: 0 })
+  const pieData =
+    data?.departmentStats?.map((item) => ({
+      name: item.department,
+      value: item._count._all,
+    })) || Array(3).fill({ name: "No Data", value: 0 });
 
   return (
     <motion.div
@@ -68,20 +78,20 @@ export default function AnalyticsPage() {
       </motion.h1>
 
       <div className="grid gap-6 md:grid-cols-3 mb-8">
-        <StatCard 
-          title="Total Ideas" 
-          value={data?.totals?.total} 
-          isLoading={isLoading} 
+        <StatCard
+          title="Total Ideas"
+          value={data?.totals?.total}
+          isLoading={isLoading}
         />
-        <StatCard 
-          title="Implemented" 
-          value={data?.totals?.implemented} 
-          isLoading={isLoading} 
+        <StatCard
+          title="Implemented"
+          value={data?.totals?.implemented}
+          isLoading={isLoading}
         />
-        <StatCard 
-          title="Success Rate" 
-          value={`${data?.totals?.successRate || 0}%`} 
-          isLoading={isLoading} 
+        <StatCard
+          title="Success Rate"
+          value={`${data?.totals?.successRate || 0}%`}
+          isLoading={isLoading}
         />
       </div>
 
@@ -102,7 +112,11 @@ export default function AnalyticsPage() {
               <Tooltip />
               <Legend />
               <Bar dataKey="submitted" fill="#4f46e5" name="Submitted Ideas" />
-              <Bar dataKey="implemented" fill="#10b981" name="Implemented Ideas" />
+              <Bar
+                dataKey="implemented"
+                fill="#10b981"
+                name="Implemented Ideas"
+              />
             </BarChart>
           )}
         </motion.div>

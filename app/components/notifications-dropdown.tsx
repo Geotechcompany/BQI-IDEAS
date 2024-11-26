@@ -1,34 +1,34 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Bell } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useNotifications } from "@/hooks/use-notifications"
-import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/dropdown-menu";
+import { useNotifications } from "@/hooks/use-notifications";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export function NotificationsDropdown() {
-  const { notifications, unreadCount, mutate } = useNotifications()
-  const [isOpen, setIsOpen] = useState(false)
+  const { notifications, unreadCount, mutate } = useNotifications();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleMarkAsRead = async (id: number) => {
     try {
-      await fetch('/api/notifications', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      })
-      mutate()
+      await fetch("/api/notifications", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      mutate();
     } catch (error) {
-      console.error('Failed to mark notification as read:', error)
+      console.error("Failed to mark notification as read:", error);
     }
-  }
+  };
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -36,8 +36,8 @@ export function NotificationsDropdown() {
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
             >
               {unreadCount}
@@ -74,5 +74,5 @@ export function NotificationsDropdown() {
         )}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-} 
+  );
+}

@@ -1,12 +1,18 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
-import { useUser, useClerk } from "@clerk/nextjs"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Code2, Building2, Briefcase } from "lucide-react"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useUser, useClerk } from "@clerk/nextjs";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Code2, Building2, Briefcase } from "lucide-react";
 
 const departments = [
   {
@@ -14,52 +20,53 @@ const departments = [
     name: "Engineering",
     description: "Software development, architecture, and technical innovation",
     icon: Code2,
-    color: "text-blue-500"
+    color: "text-blue-500",
   },
   {
     id: "operations",
     name: "Operations",
-    description: "Business operations, infrastructure, and process optimization",
+    description:
+      "Business operations, infrastructure, and process optimization",
     icon: Building2,
-    color: "text-green-500"
+    color: "text-green-500",
   },
   {
     id: "professional-services",
     name: "Professional Services",
     description: "Consulting, implementation, and client success services",
     icon: Briefcase,
-    color: "text-purple-500"
-  }
-]
+    color: "text-purple-500",
+  },
+];
 
 export default function DepartmentsPage() {
-  const { user } = useUser()
-  const { user: clerkUser } = useClerk()
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState<string | null>(null)
+  const { user } = useUser();
+  const { user: clerkUser } = useClerk();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState<string | null>(null);
 
-  const currentDepartment = user?.unsafeMetadata?.department as string
+  const currentDepartment = user?.publicMetadata?.department as string;
 
   const handleSelectDepartment = async (departmentId: string) => {
-    if (isLoading) return
-    setIsLoading(departmentId)
+    if (isLoading) return;
+    setIsLoading(departmentId);
 
     try {
       await clerkUser?.update({
-        unsafeMetadata: {
-          department: departmentId
-        }
-      })
-      router.push("/dashboard")
+        publicMetadata: {
+          department: departmentId,
+        },
+      });
+      router.push("/dashboard");
     } catch (error) {
-      console.error("Failed to update department:", error)
+      console.error("Failed to update department:", error);
     } finally {
-      setIsLoading(null)
+      setIsLoading(null);
     }
-  }
+  };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="container mx-auto px-6 py-8"
@@ -73,15 +80,16 @@ export default function DepartmentsPage() {
           Select Your Department
         </h1>
         <p className="text-lg text-gray-600">
-          Choose your department to personalize your experience and connect with your team
+          Choose your department to personalize your experience and connect with
+          your team
         </p>
       </motion.div>
 
       <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
         {departments.map((dept) => {
-          const Icon = dept.icon
-          const isSelected = currentDepartment === dept.id
-          const isProcessing = isLoading === dept.id
+          const Icon = dept.icon;
+          const isSelected = currentDepartment === dept.id;
+          const isProcessing = isLoading === dept.id;
 
           return (
             <motion.div
@@ -91,9 +99,11 @@ export default function DepartmentsPage() {
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
             >
-              <Card 
+              <Card
                 className={`cursor-pointer transition-all ${
-                  isSelected ? 'border-2 border-primary shadow-lg' : 'hover:shadow-md'
+                  isSelected
+                    ? "border-2 border-primary shadow-lg"
+                    : "hover:shadow-md"
                 }`}
                 onClick={() => handleSelectDepartment(dept.id)}
               >
@@ -107,19 +117,23 @@ export default function DepartmentsPage() {
                   <CardDescription className="mb-4">
                     {dept.description}
                   </CardDescription>
-                  <Button 
+                  <Button
                     variant={isSelected ? "secondary" : "outline"}
                     className="w-full"
                     disabled={isProcessing}
                   >
-                    {isProcessing ? "Selecting..." : isSelected ? "Selected" : "Select"}
+                    {isProcessing
+                      ? "Selecting..."
+                      : isSelected
+                      ? "Selected"
+                      : "Select"}
                   </Button>
                 </CardContent>
               </Card>
             </motion.div>
-          )
+          );
         })}
       </div>
     </motion.div>
-  )
-} 
+  );
+}

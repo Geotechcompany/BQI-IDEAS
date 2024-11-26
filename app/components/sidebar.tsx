@@ -1,28 +1,36 @@
-'use client'
+"use client";
 
-import { usePathname } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
-import { Home, Lightbulb, Building2, BarChart2, Settings, ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Home,
+  Lightbulb,
+  Building2,
+  BarChart2,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface SidebarProps {
-  isExpanded: boolean
-  onExpandedChange: (expanded: boolean) => void
+  isExpanded: boolean;
+  onExpandedChange: (expanded: boolean) => void;
 }
 
 export function Sidebar({ isExpanded, onExpandedChange }: SidebarProps) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   const navItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
     { icon: Lightbulb, label: "Ideas", href: "/dashboard/ideas" },
     { icon: Building2, label: "Departments", href: "/dashboard/departments" },
     { icon: BarChart2, label: "Analytics", href: "/dashboard/analytics" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings" }
-  ]
+    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+  ];
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-indigo-900 to-purple-900">
@@ -83,29 +91,28 @@ export function Sidebar({ isExpanded, onExpandedChange }: SidebarProps) {
 
       <nav className="flex-1 px-2 py-4 space-y-2">
         {navItems.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = pathname === item.href;
           return (
             <Link key={item.href} href={item.href}>
-              <motion.div
-                whileHover={{ x: 5 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <motion.div whileHover={{ x: 5 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   variant="ghost"
                   className={cn(
                     "w-full relative group flex items-center justify-start transition-colors duration-200",
-                    isActive 
-                      ? "bg-white/15 text-white hover:bg-white/20" 
+                    isActive
+                      ? "bg-white/15 text-white hover:bg-white/20"
                       : "text-white/80 hover:bg-white/10 hover:text-white",
                     !isExpanded && "justify-center"
                   )}
                 >
-                  <item.icon className={cn(
-                    "h-5 w-5 transition-transform duration-200",
-                    isActive ? "text-white" : "text-white/80",
-                    !isExpanded && "transform scale-110"
-                  )} />
-                  
+                  <item.icon
+                    className={cn(
+                      "h-5 w-5 transition-transform duration-200",
+                      isActive ? "text-white" : "text-white/80",
+                      !isExpanded && "transform scale-110"
+                    )}
+                  />
+
                   <AnimatePresence initial={false}>
                     {isExpanded && (
                       <motion.span
@@ -127,10 +134,9 @@ export function Sidebar({ isExpanded, onExpandedChange }: SidebarProps) {
                 </Button>
               </motion.div>
             </Link>
-          )
+          );
         })}
       </nav>
     </div>
-  )
+  );
 }
-

@@ -1,7 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
+/* Hide Clerk development banner and secured by text */
+.cl-internal-b3fm6y, /* Development mode banner */
+.cl-internal-uyu30o  /* Secured by Clerk text */ {
+  display: none !important;
+}
+
+/* Additional styles for better form appearance */
+.cl-card {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+}
+
+.cl-formButtonPrimary {
+  background-image: none !important;
+}
+
+/* Optional: Enhance the form fields focus states */
+.cl-formFieldInput:focus {
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2) !important;
+  border-color: rgb(79, 70, 229) !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     const [monthlyIdeas, departmentStats, totals] = await Promise.all([
       // Monthly ideas query
       prisma.idea.groupBy({
-        by: ['created_at'],
+        by: ["created_at"],
         _count: {
           _all: true,
         },
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
       // Department stats query
       prisma.idea.groupBy({
-        by: ['department'],
+        by: ["department"],
         _count: {
           _all: true,
         },
@@ -37,14 +37,13 @@ export async function GET(request: Request) {
     ]);
 
     // Process monthly data
-    const processedMonthlyData = monthlyIdeas.map((item: {
-      created_at: Date
-      _count: { _all: number }
-    }) => ({
-      month: item.created_at,
-      submitted: item._count._all,
-      implemented: 0,
-    }));
+    const processedMonthlyData = monthlyIdeas.map(
+      (item: { created_at: Date; _count: { _all: number } }) => ({
+        month: item.created_at,
+        submitted: item._count._all,
+        implemented: 0, // You'll need to adjust this based on your schema
+      })
+    );
 
     const response = {
       monthlyIdeas: processedMonthlyData,
@@ -53,9 +52,7 @@ export async function GET(request: Request) {
         total: totals._count._all,
         implemented: totals._sum.likes || 0,
         successRate: totals._count._all
-          ? Math.round(
-              ((totals._sum.likes || 0) * 100) / totals._count._all
-            )
+          ? Math.round(((totals._sum.likes || 0) * 100) / totals._count._all)
           : 0,
       },
     };
