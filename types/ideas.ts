@@ -9,6 +9,13 @@ export interface Like {
   user_id: string;
 }
 
+export interface Note {
+  id: string;
+  content: string;
+  color: string;
+  order: number;
+}
+
 export interface Idea {
   id: number;
   title: string;
@@ -22,6 +29,7 @@ export interface Idea {
   likes: number;
   likes_by: Like[];
   comments: Comment[];
+  notes: Note[];
   _count: {
     likes_by: number;
     comments: number;

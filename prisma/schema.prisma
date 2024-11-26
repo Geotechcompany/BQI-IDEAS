@@ -23,6 +23,7 @@ model Idea {
   likes       Int      @default(0)
   status      String   @default("pending") // pending, approved, implemented
   comments_count Int   @default(0)
+  notes       Note[]
   
   // Relations
   likes_by    IdeaLike[]
@@ -85,5 +86,19 @@ model Notification {
   idea       Idea?    @relation(fields: [idea_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
+  @@index([idea_id])
+}
+
+model Note {
+  id         String   @id @default(cuid())
+  idea_id    Int
+  content    String
+  color      String
+  order      Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  
+  idea       Idea     @relation(fields: [idea_id], references: [id], onDelete: Cascade)
+
   @@index([idea_id])
 } 

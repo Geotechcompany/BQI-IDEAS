@@ -29,6 +29,17 @@ export async function GET(req: Request) {
             created_at: true
           }
         },
+        notes: {
+          orderBy: {
+            order: 'asc'
+          },
+          select: {
+            id: true,
+            content: true,
+            color: true,
+            order: true
+          }
+        },
         _count: {
           select: {
             likes_by: true,

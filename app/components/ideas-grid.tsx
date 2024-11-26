@@ -13,14 +13,12 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
   MoreVertical,
   Pencil,
   Trash2,
   Heart,
-  MessageSquare,
-  Eye,
+
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -30,11 +28,26 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { EditIdeaDialog } from "./edit-idea-dialog";
 import toast from "react-hot-toast";
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 import { CommentSection } from "./comment-section";
+import { IdeaNotes } from "./idea-notes";
 
 interface IdeasGridProps {
   department?: string;
+}
+
+interface Idea {
+  id: number;
+  title: string;
+  description: string;
+  author_id: string;
+  category: string;
+  status: string;
+  created_at: string;
+  likes_by: Array<{ user_id: string }>;
+  comments: Comment[];
+  _count: { likes_by: number };
+  notes?: string;
 }
 
 export function IdeasGrid({ department }: IdeasGridProps) {
@@ -116,7 +129,7 @@ export function IdeasGrid({ department }: IdeasGridProps) {
                       {idea.title}
                     </CardTitle>
                     <p className="text-sm text-indigo-600 mt-1">
-                      Posted by {idea.author_id === user?.id ? 'You' : 'User'}
+                      Posted by {idea.author_id === user?.id ? "You" : "User"}
                     </p>
                   </div>
                   {user?.id === idea.author_id && (
@@ -127,7 +140,9 @@ export function IdeasGrid({ department }: IdeasGridProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setEditingIdea(idea.id)}>
+                        <DropdownMenuItem
+                          onClick={() => setEditingIdea(idea.id)}
+                        >
                           <Pencil className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
@@ -145,18 +160,39 @@ export function IdeasGrid({ department }: IdeasGridProps) {
               </CardHeader>
 
               <CardContent className="pt-6">
-                <p className="text-gray-600 leading-relaxed">{idea.description}</p>
-                
+                <p className="text-gray-600 leading-relaxed">
+                  {idea.description}
+                </p>
+
+                <div className="mt-6">
+                  <IdeaNotes
+                    ideaId={idea.id}
+                    initialNotes={idea.notes}
+                    onNotesChange={async (notes) => {
+                      try {
+                        await fetch(`/api/ideas/${idea.id}/notes`, {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ notes }),
+                        });
+                        mutate();
+                      } catch (error) {
+                        toast.error("Failed to update notes");
+                      }
+                    }}
+                  />
+                </div>
+
                 <div className="mt-6 flex justify-between items-center">
                   <div className="flex gap-3">
-                    <Badge 
-                      variant="outline" 
+                    <Badge
+                      variant="outline"
                       className={`${getCategoryColor(idea.category)} px-3 py-1`}
                     >
                       {idea.category}
                     </Badge>
-                    <Badge 
-                      variant="outline" 
+                    <Badge
+                      variant="outline"
                       className="bg-gray-50 text-gray-600 px-3 py-1"
                     >
                       {idea.status}
@@ -176,19 +212,23 @@ export function IdeasGrid({ department }: IdeasGridProps) {
                       size="sm"
                       onClick={() => handleLike(idea.id)}
                       className={`hover:text-red-500 transition-colors ${
-                        idea.likes_by.some(like => like.user_id === user?.id)
+                        idea.likes_by.some((like) => like.user_id === user?.id)
                           ? "text-red-500"
                           : "text-gray-600"
                       }`}
                     >
-                      <Heart className={`h-4 w-4 mr-1 ${
-                        idea.likes_by.some(like => like.user_id === user?.id)
-                          ? "fill-current"
-                          : ""
-                      }`} />
+                      <Heart
+                        className={`h-4 w-4 mr-1 ${
+                          idea.likes_by.some(
+                            (like) => like.user_id === user?.id
+                          )
+                            ? "fill-current"
+                            : ""
+                        }`}
+                      />
                       {idea._count.likes_by}
                     </Button>
-                    
+
                     <CommentSection
                       ideaId={idea.id}
                       comments={idea.comments}
@@ -244,8 +284,8 @@ function getCategoryColor(category: string): string {
     feature: "border-blue-500 text-blue-600 bg-blue-50",
     bug: "border-red-500 text-red-600 bg-red-50",
     improvement: "border-green-500 text-green-600 bg-green-50",
-    default: "border-gray-500 text-gray-600 bg-gray-50"
+    default: "border-gray-500 text-gray-600 bg-gray-50",
   };
-  
+
   return colors[category.toLowerCase()] || colors.default;
 }
