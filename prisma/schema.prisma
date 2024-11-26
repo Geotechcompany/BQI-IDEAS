@@ -48,17 +48,21 @@ model IdeaLike {
 }
 
 model Comment {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   idea_id    Int
   user_id    String
   content    String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  parent_id  Int?
   
   // Relations
-  idea       Idea     @relation(fields: [idea_id], references: [id])
+  idea       Idea      @relation(fields: [idea_id], references: [id])
+  parent     Comment?  @relation("CommentReplies", fields: [parent_id], references: [id])
+  replies    Comment[] @relation("CommentReplies")
 
   @@index([user_id])
+  @@index([parent_id])
 }
 
 model Department {
