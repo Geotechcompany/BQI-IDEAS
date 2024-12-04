@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { Bell } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "../../components/ui/dropdown-menu";
 import { useNotifications } from "@/hooks/use-notifications";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { Badge } from "../../components/ui/badge";
+import { cn } from "../../lib/utils";
 
 export function NotificationsDropdown() {
   const { notifications, unreadCount, mutate } = useNotifications();

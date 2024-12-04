@@ -4,11 +4,11 @@ import { useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useIdeas } from '@/hooks/use-ideas'
 import type { IdeaInput } from '@/types/ideas'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '../../components/ui/button'
+import { Input } from '../../components/ui/input'
+import { Textarea } from '../../components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card'
 
 interface AddIdeaFormProps {
   department: string

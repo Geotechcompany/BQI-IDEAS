@@ -9,10 +9,10 @@ import {
   CardHeader,
   CardTitle,
   CardFooter,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+} from "../../components/ui/card";
+import { Skeleton } from "../../components/ui/skeleton";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
 import {
   MoreVertical,
   Pencil,
@@ -25,7 +25,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "../../components/ui/dropdown-menu";
 import { EditIdeaDialog } from "./edit-idea-dialog";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";

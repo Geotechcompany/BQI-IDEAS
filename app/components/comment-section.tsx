@@ -3,9 +3,9 @@
 import { useState } from "react"
 import { useUser } from "@clerk/nextjs"
 import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "../../components/ui/button"
+import { Textarea } from "../../components/ui/textarea"
+import { Avatar, AvatarFallback } from "../../components/ui/avatar"
 import { MessageSquare, Trash2, Reply, ChevronDown, Loader2 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 

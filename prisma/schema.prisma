@@ -16,7 +16,7 @@ model Idea {
   title       String
   description String
   category    String
-  department  String
+  department  DepartmentType
   author_id   String
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
@@ -30,7 +30,6 @@ model Idea {
   comments    Comment[]
   notifications Notification[]
 
-  @@index([department])
   @@index([category])
   @@index([author_id])
 }
@@ -101,4 +100,38 @@ model Note {
   idea       Idea     @relation(fields: [idea_id], references: [id], onDelete: Cascade)
 
   @@index([idea_id])
+}
+
+model Settings {
+  id                Int      @id @default(1)
+  siteName          String   @default("BQI Admin Portal")
+  maintenanceMode   Boolean  @default(false)
+  emailNotifications Boolean @default(true)
+  slackIntegration  Boolean  @default(false)
+  autoApproval      Boolean  @default(false)
+  maxIdeasPerUser   Int      @default(10)
+  requireApproval   Boolean  @default(true)
+  updatedAt         DateTime @updatedAt
+}
+
+enum DepartmentType {
+  Engineering
+  Operations
+  Professional_Services
+}
+
+model User {
+  id           String    @id
+  email        String    @unique
+  firstName    String?
+  lastName     String?
+  imageUrl     String?
+  department   DepartmentType?
+  role         String    @default("user")
+  lastSignInAt DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  @@index([department])
+  @@index([role])
 } 

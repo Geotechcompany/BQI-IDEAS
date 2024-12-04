@@ -3,10 +3,10 @@
 import { useState } from "react"
 import { Menu, X } from "lucide-react"
 import { UserButton } from "@clerk/nextjs"
-import { Button } from "@/components/ui/button"
+import { Button } from "../../components/ui/button"
 import { Sidebar } from "../components/sidebar"
 import { NotificationsDropdown } from "../components/notifications-dropdown"
-import { Breadcrumbs } from "../components/breadcrumbs"
+  import { Breadcrumbs } from "../components/breadcrumbs"
 
 export default function DashboardLayout({
   children,

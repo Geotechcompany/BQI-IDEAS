@@ -2,10 +2,10 @@
 
 import { motion } from "framer-motion"
 import { useState } from "react"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
+import { Textarea } from "../../components/ui/textarea"
+import { Button } from "../../components/ui/button"
 import { X, Save, Edit2 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn } from "../../lib/utils"
 
 interface StickyNoteProps {
   id: string

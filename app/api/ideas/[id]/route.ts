@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '../../../lib/prisma'
+import { DEPARTMENTS } from "@/lib/constants"
 
 export async function DELETE(
   req: Request,
@@ -10,17 +11,29 @@ export async function DELETE(
     const { userId } = await auth()
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const idea = await prisma.idea.findUnique({
-      where: { id: parseInt(params.id) },
-      select: { author_id: true }
-    })
-
-    if (!idea) return NextResponse.json({ error: 'Idea not found' }, { status: 404 })
-    if (idea.author_id !== userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-
-    await prisma.idea.delete({
-      where: { id: parseInt(params.id) }
-    })
+    // Delete all related records first
+    await prisma.$transaction([
+      // Delete likes
+      prisma.ideaLike.deleteMany({
+        where: { idea_id: parseInt(params.id) }
+      }),
+      // Delete comments
+      prisma.comment.deleteMany({
+        where: { idea_id: parseInt(params.id) }
+      }),
+      // Delete notifications
+      prisma.notification.deleteMany({
+        where: { idea_id: parseInt(params.id) }
+      }),
+      // Delete notes
+      prisma.note.deleteMany({
+        where: { idea_id: parseInt(params.id) }
+      }),
+      // Finally delete the idea
+      prisma.idea.delete({
+        where: { id: parseInt(params.id) }
+      })
+    ])
 
     return NextResponse.json({ success: true })
   } catch (error) {
@@ -35,30 +48,36 @@ export async function PUT(
 ) {
   try {
     const { userId } = await auth()
-    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-    const idea = await prisma.idea.findUnique({
-      where: { id: parseInt(params.id) },
-      select: { author_id: true }
-    })
-
-    if (!idea) return NextResponse.json({ error: 'Idea not found' }, { status: 404 })
-    if (idea.author_id !== userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const body = await req.json()
+    
+    // Validate department
+    if (body.department && !DEPARTMENTS.includes(body.department)) {
+      return NextResponse.json(
+        { error: "Invalid department" },
+        { status: 400 }
+      )
+    }
+
     const updatedIdea = await prisma.idea.update({
       where: { id: parseInt(params.id) },
       data: {
         title: body.title,
         description: body.description,
-        category: body.category
+        department: body.department,
+        category: body.category,
+        updated_at: new Date()
       }
     })
 
     return NextResponse.json(updatedIdea)
   } catch (error) {
-    console.error('Failed to update idea:', error)
-    return NextResponse.json({ error: 'Failed to update idea' }, { status: 500 })
+    console.error("Failed to update idea:", error)
+    return NextResponse.json(
+      { error: "Failed to update idea" },
+      { status: 500 }
+    )
   }
 }
 
@@ -70,26 +89,37 @@ export async function GET(
     const idea = await prisma.idea.findUnique({
       where: { id: parseInt(params.id) },
       include: {
+        _count: {
+          select: {
+            likes_by: true,
+            comments: true
+          }
+        },
         likes_by: true,
         comments: {
-          orderBy: {
-            created_at: "desc"
-          },
-          select: {
-            id: true,
-            content: true,
-            user_id: true,
-            created_at: true
+          orderBy: { created_at: "desc" },
+          include: {
+            replies: {
+              orderBy: { created_at: "asc" }
+            }
           }
+        },
+        notes: {
+          orderBy: { order: "asc" }
         }
       }
-    });
+    })
 
-    if (!idea) return NextResponse.json({ error: 'Idea not found' }, { status: 404 });
+    if (!idea) {
+      return NextResponse.json(
+        { error: "Idea not found" },
+        { status: 404 }
+      )
+    }
 
-    return NextResponse.json(idea);
+    return NextResponse.json(idea)
   } catch (error) {
-    console.error('Failed to fetch idea:', error);
-    return NextResponse.json({ error: 'Failed to fetch idea' }, { status: 500 });
+    console.error('Failed to fetch idea:', error)
+    return NextResponse.json({ error: 'Failed to fetch idea' }, { status: 500 })
   }
 } 
