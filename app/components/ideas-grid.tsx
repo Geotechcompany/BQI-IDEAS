@@ -44,6 +44,7 @@ interface Idea {
   category: string;
   status: string;
   created_at: string;
+  department: string;
   likes_by: Array<{ user_id: string }>;
   comments: Comment[];
   _count: { likes_by: number };
@@ -196,6 +197,12 @@ export function IdeasGrid({ department }: IdeasGridProps) {
                       className="bg-gray-50 text-gray-600 px-3 py-1"
                     >
                       {idea.status}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className="bg-indigo-50 text-indigo-600 px-3 py-1"
+                    >
+                      {idea.department}
                     </Badge>
                   </div>
                   <span className="text-sm text-gray-500">
