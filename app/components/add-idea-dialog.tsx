@@ -3,11 +3,11 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useUser } from "@clerk/nextjs"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog"
-import { Input } from "../../components/ui/input"
-import { Textarea } from "../../components/ui/textarea"
-import { Button } from "../../components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2, Plus } from "lucide-react"
 import toast from 'react-hot-toast'
 
@@ -24,7 +24,8 @@ export function AddIdeaDialog({ department, onIdeaAdded }: AddIdeaDialogProps) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    category: ""
+    category: "",
+    department: ""
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,7 +48,7 @@ export function AddIdeaDialog({ department, onIdeaAdded }: AddIdeaDialogProps) {
 
       toast.success('Your idea has been submitted successfully!')
       
-      setFormData({ title: "", description: "", category: "" })
+      setFormData({ title: "", description: "", category: "", department: "" })
       setOpen(false)
       onIdeaAdded()
     } catch (error) {
@@ -101,6 +102,25 @@ export function AddIdeaDialog({ department, onIdeaAdded }: AddIdeaDialogProps) {
                 className="min-h-[120px]"
                 disabled={isSubmitting}
               />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Department</label>
+              <Select
+                value={formData.department}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, department: value }))}
+                required
+                disabled={isSubmitting}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a department" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="engineering">Engineering</SelectItem>
+                  <SelectItem value="operations">Operations</SelectItem>
+                  <SelectItem value="professional-services">Professional Services</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
