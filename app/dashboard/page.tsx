@@ -10,7 +10,7 @@ import { BarChart2, Lightbulb, Users } from "lucide-react"
 
 export default function DashboardPage() {
   const { user } = useUser()
-  const department = user?.publicMetadata?.department as string || ""
+  const department = user?.unsafeMetadata?.department as string || ""
   const { ideas, mutate } = useIdeas(department)
 
   const stats = [
@@ -45,13 +45,14 @@ export default function DashboardPage() {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="container mx-auto px-6 py-8"
+      className="container mx-auto px-4 sm:px-6 py-4 sm:py-8"
     >
-      <div className="flex justify-between items-center mb-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
         <motion.h1 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-4xl font-bold text-indigo-900"
+          className="text-2xl sm:text-4xl font-bold text-indigo-900"
         >
           Dashboard
         </motion.h1>
@@ -62,7 +63,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Section */}
-      <div className="grid gap-6 mb-8 md:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {stats.map((stat, index) => (
           <motion.div
             key={stat.title}
@@ -70,15 +71,15 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <Card className="h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-gray-600">
                   {stat.title}
                 </CardTitle>
-                <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                <stat.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${stat.color}`} />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{stat.value}</div>
+                <div className="text-2xl sm:text-3xl font-bold">{stat.value}</div>
               </CardContent>
             </Card>
           </motion.div>
@@ -86,11 +87,16 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Ideas Section */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Recent Ideas</h2>
-        <IdeasGrid 
-          department={department} 
-        />
+      <div className="space-y-4">
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
+          Recent Ideas
+        </h2>
+        <div className="grid grid-cols-1 gap-4">
+          <IdeasGrid 
+            department={department}
+       // Show only recent 5 ideas
+          />
+        </div>
       </div>
     </motion.div>
   )
