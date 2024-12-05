@@ -16,7 +16,7 @@ model Idea {
   title       String
   description String
   category    String
-  department  DepartmentType
+  department  String?
   author_id   String
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
@@ -30,6 +30,7 @@ model Idea {
   comments    Comment[]
   notifications Notification[]
 
+  @@index([department])
   @@index([category])
   @@index([author_id])
 }
@@ -114,24 +115,11 @@ model Settings {
   updatedAt         DateTime @updatedAt
 }
 
-enum DepartmentType {
-  Engineering
-  Operations
-  Professional_Services
-}
-
 model User {
-  id           String    @id
-  email        String    @unique
-  firstName    String?
-  lastName     String?
-  imageUrl     String?
-  department   DepartmentType?
-  role         String    @default("user")
-  lastSignInAt DateTime?
-  created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
-
-  @@index([department])
-  @@index([role])
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String?
+  lastName  String?
+  createdAt DateTime @default(now())
+  // other fields...
 } 

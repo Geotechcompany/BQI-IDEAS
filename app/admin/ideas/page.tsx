@@ -43,7 +43,7 @@ export default function IdeasPage() {
   const [isUpdating, setIsUpdating] = useState<number | null>(null)
   const [deleteIdea, setDeleteIdea] = useState<number | null>(null)
 
-  const filteredIdeas = ideas?.filter(idea => {
+  const filteredIdeas = Array.isArray(ideas) ? ideas.filter(idea => {
     if (searchQuery && !idea.title.toLowerCase().includes(searchQuery.toLowerCase())) 
       return false
     if (departmentFilter !== "all" && idea.department !== departmentFilter) 
@@ -51,7 +51,7 @@ export default function IdeasPage() {
     if (statusFilter !== "all" && idea.status !== statusFilter)
       return false
     return true
-  })
+  }) : []
 
   const handleUpdateStatus = async (ideaId: number, status: string) => {
     setIsUpdating(ideaId)

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../components/ui/card'
+import { Badge } from '../../../components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar'
 import { ThumbsUp, MessageCircle } from 'lucide-react'
 
 // This would typically come from a database

@@ -27,6 +27,24 @@ import {
 } from "../../../components/ui/dialog"
 import { useUsers } from "../../hooks/use-users"
 import { DEPARTMENTS } from "../../lib/constants"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm, FieldValues } from "react-hook-form"
+import * as z from "zod"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../../components/ui/form"
+import { Loader2 } from "lucide-react"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../../../components/ui/select"
+import { toast } from "react-hot-toast"
+
+interface User {
+  id: string
+  firstName: string | null
+  lastName: string | null
+  email: string
+  imageUrl: string
+  department?: string
+  role?: string
+  lastSignInAt?: string | null
+}
 
 function UserCardSkeleton() {
   return (
@@ -50,12 +68,23 @@ function UserCardSkeleton() {
   )
 }
 
+const userFormSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  department: z.string().min(1, "Please select a department"),
+  role: z.string().min(1, "Please select a role")
+})
+
+type UserFormValues = z.infer<typeof userFormSchema>
+
 export default function UsersPage() {
   const { users, isLoading, mutate } = useUsers()
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedDepartment, setSelectedDepartment] = useState("all")
+  const [isOpen, setIsOpen] = useState(false)
 
-  const filteredUsers = users?.filter(user => {
+  const filteredUsers = users?.filter((user: User) => {
     if (searchQuery && !`${user.firstName} ${user.lastName} ${user.email}`
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
@@ -91,6 +120,36 @@ export default function UsersPage() {
     }
   }
 
+  const form = useForm<UserFormValues>({
+    resolver: zodResolver(userFormSchema),
+    defaultValues: {
+      email: "",
+      firstName: "",
+      lastName: "",
+      department: "",
+      role: "user"
+    }
+  })
+
+  const onSubmit = async (data: UserFormValues) => {
+    try {
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+
+      if (!response.ok) throw new Error()
+      
+      toast.success("User invited successfully")
+      mutate() // Refresh users list
+      setIsOpen(false)
+      form.reset()
+    } catch (error) {
+      toast.error("Failed to invite user")
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -119,7 +178,117 @@ export default function UsersPage() {
                 Invite a new user to join the platform.
               </DialogDescription>
             </DialogHeader>
-            {/* Add user form here */}
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }: { field: FieldValues }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="user@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }: FieldValues) => (
+                      <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }: FieldValues) => (
+                      <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="department"
+                  render={({ field }: FieldValues) => (
+                    <FormItem>
+                      <FormLabel>Department</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a department" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {DEPARTMENTS.map((dept) => (
+                            <SelectItem key={dept} value={dept}>
+                              {dept.replace('_', ' ')}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }: FieldValues) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="moderator">Moderator</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end gap-4">
+                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Inviting...
+                      </>
+                    ) : (
+                      'Invite User'
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </DialogContent>
         </Dialog>
       </div>
@@ -152,7 +321,7 @@ export default function UsersPage() {
         {isLoading ? (
           Array(6).fill(0).map((_, i) => <UserCardSkeleton key={i} />)
         ) : (
-          filteredUsers?.map((user) => (
+          filteredUsers?.map((user: User) => (
             <Card key={user.id} className="hover:shadow-xl transition-all duration-200 border-gray-200/50">
               <CardHeader className="flex flex-row items-center gap-4">
                 <Avatar className="h-12 w-12 ring-2 ring-offset-2 ring-indigo-500">

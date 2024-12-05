@@ -1,6 +1,6 @@
 import { Search, Bell } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { Input } from '../../components/ui/input'
+import { Button } from '../../components/ui/button'
 import { UserButton } from "@clerk/nextjs"
 
 export function Header() {

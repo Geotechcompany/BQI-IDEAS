@@ -3,11 +3,11 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useUser } from "@clerk/nextjs"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog"
+import { Input } from "../../components/ui/input"
+import { Textarea } from "../../components/ui/textarea"
+import { Button } from "../../components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { Loader2, Plus } from "lucide-react"
 import toast from 'react-hot-toast'
 
@@ -17,7 +17,7 @@ interface AddIdeaDialogProps {
 }
 
 export function AddIdeaDialog({ department, onIdeaAdded }: AddIdeaDialogProps) {
-  const [open, setOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { user } = useUser()
 
@@ -25,34 +25,32 @@ export function AddIdeaDialog({ department, onIdeaAdded }: AddIdeaDialogProps) {
     title: "",
     description: "",
     category: "",
-    department: ""
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) return
-
+    if (isSubmitting) return
     setIsSubmitting(true)
+
     try {
       const response = await fetch("/api/ideas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          department,
-          status: "pending"
+          department: department
         })
       })
 
-      if (!response.ok) throw new Error("Failed to submit idea")
+      if (!response.ok) throw new Error("Failed to create idea")
 
-      toast.success('Your idea has been submitted successfully!')
-      
-      setFormData({ title: "", description: "", category: "", department: "" })
-      setOpen(false)
+      toast.success("Idea submitted successfully!")
+      setIsOpen(false)
+      setFormData({ title: "", description: "", category: "" })
       onIdeaAdded()
     } catch (error) {
-      toast.error('Failed to submit idea. Please try again.')
+      console.error("Failed to create idea:", error)
+      toast.error("Failed to create idea. Please try again.")
     } finally {
       setIsSubmitting(false)
     }
@@ -60,27 +58,21 @@ export function AddIdeaDialog({ department, onIdeaAdded }: AddIdeaDialogProps) {
 
   return (
     <>
-      <motion.div
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+      <Button 
+        onClick={() => setIsOpen(true)}
+        className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
       >
-        <Button 
-          onClick={() => setOpen(true)}
-          className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-          size="lg"
-        >
-          <Plus className="h-5 w-5" />
-          Add New Idea
-        </Button>
-      </motion.div>
+        <Plus className="h-4 w-4 mr-2" />
+        Share Idea
+      </Button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Share Your Idea</DialogTitle>
+            <DialogTitle>Share Your Idea</DialogTitle>
           </DialogHeader>
-          
-          <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Title</label>
               <Input
@@ -99,28 +91,8 @@ export function AddIdeaDialog({ department, onIdeaAdded }: AddIdeaDialogProps) {
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Describe your idea in detail"
                 required
-                className="min-h-[120px]"
                 disabled={isSubmitting}
               />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Department</label>
-              <Select
-                value={formData.department}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, department: value }))}
-                required
-                disabled={isSubmitting}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a department" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="engineering">Engineering</SelectItem>
-                  <SelectItem value="operations">Operations</SelectItem>
-                  <SelectItem value="professional-services">Professional Services</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="space-y-2">
@@ -142,19 +114,20 @@ export function AddIdeaDialog({ department, onIdeaAdded }: AddIdeaDialogProps) {
               </Select>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-end gap-4">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setOpen(false)}
+                onClick={() => setIsOpen(false)}
                 disabled={isSubmitting}
+                className="hover:bg-gray-50"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
               >
                 {isSubmitting ? (
                   <>

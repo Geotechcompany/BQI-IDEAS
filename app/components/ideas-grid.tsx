@@ -1,5 +1,5 @@
 "use client";
-
+ 
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useIdeas } from "@/hooks/use-ideas";
@@ -18,7 +18,7 @@ import {
   Pencil,
   Trash2,
   Heart,
-
+ 
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -31,65 +31,81 @@ import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import { CommentSection } from "./comment-section";
 import { IdeaNotes } from "./idea-notes";
-
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../../components/ui/select";
+ 
 interface IdeasGridProps {
   department?: string;
 }
-
+ 
 interface Idea {
   id: number;
   title: string;
   description: string;
   author_id: string;
+  author?: {
+    username: string;
+  };
   category: string;
   status: string;
   created_at: string;
+  department: string;
   likes_by: Array<{ user_id: string }>;
   comments: Comment[];
   _count: { likes_by: number };
   notes?: string;
 }
-
+ 
 export function IdeasGrid({ department }: IdeasGridProps) {
+  const { ideas, mutate } = useIdeas();
   const { user } = useUser();
-  const { ideas, isLoading, isError, mutate } = useIdeas(department);
   const [editingIdea, setEditingIdea] = useState<number | null>(null);
   const [commentingOn, setCommentingOn] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  if (isLoading) return <IdeasGridSkeleton />;
-  if (isError) return <div>Failed to load ideas</div>;
-  if (!ideas?.length) return <div>No ideas found</div>;
-
+  const [selectedDepartment, setSelectedDepartment] = useState(department || "all");
+ 
+  const refreshIdeas = async () => {
+    await mutate();
+  };
+ 
+  if (!ideas) {
+    return <div>Loading...</div>;
+  }
+ 
   const handleDelete = async (ideaId: number) => {
     try {
       const response = await fetch(`/api/ideas/${ideaId}`, {
         method: "DELETE",
       });
-
+ 
       if (!response.ok) throw new Error("Failed to delete idea");
-      mutate(); // Refresh the ideas list
+      refreshIdeas(); // Refresh the ideas list
     } catch (error) {
       console.error("Failed to delete idea:", error);
     }
   };
-
+ 
   const handleLike = async (ideaId: number) => {
     try {
       const response = await fetch(`/api/ideas/${ideaId}/like`, {
         method: "POST",
       });
       if (!response.ok) throw new Error("Failed to like idea");
-      mutate();
+      refreshIdeas();
     } catch (error) {
       toast.error("Failed to like idea");
     }
   };
-
+ 
   const handleComment = async (ideaId: number) => {
     if (!comment.trim()) return;
-
+ 
     setIsSubmitting(true);
     try {
       const response = await fetch(`/api/ideas/${ideaId}/comments`, {
@@ -98,10 +114,10 @@ export function IdeasGrid({ department }: IdeasGridProps) {
         body: JSON.stringify({ content: comment }),
       });
       if (!response.ok) throw new Error("Failed to add comment");
-
+ 
       setComment("");
       setCommentingOn(null);
-      mutate();
+      refreshIdeas();
       toast.success("Comment added successfully");
     } catch (error) {
       toast.error("Failed to add comment");
@@ -109,11 +125,39 @@ export function IdeasGrid({ department }: IdeasGridProps) {
       setIsSubmitting(false);
     }
   };
-
+ 
+  const filteredIdeas = ideas?.filter(idea => {
+    if (selectedDepartment === "all") return true;
+    return idea.department?.toLowerCase() === selectedDepartment.toLowerCase();
+  });
+ 
   return (
     <>
+      <div className="mb-6">
+        <Select
+          value={selectedDepartment}
+          onValueChange={setSelectedDepartment}
+        >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Filter by department" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Departments</SelectItem>
+            <SelectItem value="Engineering">Engineering</SelectItem>
+            <SelectItem value="Operations">Operations</SelectItem>
+            <SelectItem value="Professional_Services">Professional Services</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+ 
+      {filteredIdeas?.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          No ideas found for this department.
+        </div>
+      )}
+ 
       <div className="grid gap-6 md:grid-cols-2">
-        {ideas.map((idea) => (
+        {filteredIdeas?.map((idea) => (
           <motion.div
             key={idea.id}
             initial={{ opacity: 0, y: 20 }}
@@ -129,7 +173,7 @@ export function IdeasGrid({ department }: IdeasGridProps) {
                       {idea.title}
                     </CardTitle>
                     <p className="text-sm text-indigo-600 mt-1">
-                      Posted by {idea.author_id === user?.id ? "You" : "User"}
+                      Posted by { "User"}
                     </p>
                   </div>
                   {user?.id === idea.author_id && (
@@ -158,31 +202,33 @@ export function IdeasGrid({ department }: IdeasGridProps) {
                   )}
                 </div>
               </CardHeader>
-
+ 
               <CardContent className="pt-6">
                 <p className="text-gray-600 leading-relaxed">
                   {idea.description}
                 </p>
-
-                <div className="mt-6">
-                  <IdeaNotes
-                    ideaId={idea.id}
-                    initialNotes={idea.notes}
-                    onNotesChange={async (notes) => {
-                      try {
-                        await fetch(`/api/ideas/${idea.id}/notes`, {
-                          method: "PUT",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ notes }),
-                        });
-                        mutate();
-                      } catch (error) {
-                        toast.error("Failed to update notes");
-                      }
-                    }}
-                  />
-                </div>
-
+ 
+                {user?.id === idea.author_id && (
+                  <div className="mt-6">
+                    <IdeaNotes
+                      ideaId={idea.id}
+                      initialNotes={idea.notes}
+                      onNotesChange={async (notes) => {
+                        try {
+                          await fetch(`/api/ideas/${idea.id}/notes`, {
+                            method: "PUT",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ notes }),
+                          });
+                          refreshIdeas();
+                        } catch (error) {
+                          toast.error("Failed to update notes");
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+ 
                 <div className="mt-6 flex justify-between items-center">
                   <div className="flex gap-3">
                     <Badge
@@ -197,13 +243,19 @@ export function IdeasGrid({ department }: IdeasGridProps) {
                     >
                       {idea.status}
                     </Badge>
+                    <Badge
+                      variant="outline"
+                      className="bg-indigo-50 text-indigo-600 px-3 py-1"
+                    >
+                      {idea.department}
+                    </Badge>
                   </div>
                   <span className="text-sm text-gray-500">
                     {new Date(idea.created_at).toLocaleDateString()}
                   </span>
                 </div>
               </CardContent>
-
+ 
               <CardFooter className="flex flex-col gap-4 bg-gradient-to-r from-indigo-50/50 to-purple-50/50">
                 <div className="flex justify-between w-full">
                   <div className="flex gap-4">
@@ -228,12 +280,12 @@ export function IdeasGrid({ department }: IdeasGridProps) {
                       />
                       {idea._count.likes_by}
                     </Button>
-
+ 
                     <CommentSection
                       ideaId={idea.id}
                       comments={idea.comments}
-                      onCommentAdded={() => mutate()}
-                      onCommentDeleted={() => mutate()}
+                      onCommentAdded={() => refreshIdeas()}
+                      onCommentDeleted={() => refreshIdeas()}
                     />
                   </div>
                 </div>
@@ -242,7 +294,7 @@ export function IdeasGrid({ department }: IdeasGridProps) {
           </motion.div>
         ))}
       </div>
-
+ 
       <EditIdeaDialog
         ideaId={editingIdea}
         open={!!editingIdea}
@@ -250,14 +302,14 @@ export function IdeasGrid({ department }: IdeasGridProps) {
           if (!open) setEditingIdea(null);
         }}
         onSave={() => {
-          mutate(); // Refresh the ideas list after saving
+          refreshIdeas(); // Refresh the ideas list after saving
           setEditingIdea(null);
         }}
       />
     </>
   );
 }
-
+ 
 function IdeasGridSkeleton() {
   return (
     <div className="grid gap-6 md:grid-cols-2">
@@ -278,7 +330,7 @@ function IdeasGridSkeleton() {
     </div>
   );
 }
-
+ 
 function getCategoryColor(category: string): string {
   const colors: Record<string, string> = {
     feature: "border-blue-500 text-blue-600 bg-blue-50",
@@ -286,6 +338,6 @@ function getCategoryColor(category: string): string {
     improvement: "border-green-500 text-green-600 bg-green-50",
     default: "border-gray-500 text-gray-600 bg-gray-50",
   };
-
+ 
   return colors[category.toLowerCase()] || colors.default;
 }

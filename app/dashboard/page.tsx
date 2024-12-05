@@ -5,7 +5,7 @@ import { useUser } from "@clerk/nextjs"
 import { IdeasGrid } from "../components/ideas-grid"
 import { AddIdeaDialog } from "../components/add-idea-dialog"
 import { useIdeas } from "@/hooks/use-ideas"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { BarChart2, Lightbulb, Users } from "lucide-react"
 
 export default function DashboardPage() {

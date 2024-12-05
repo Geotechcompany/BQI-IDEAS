@@ -4,8 +4,8 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useUser, useClerk } from "@clerk/nextjs"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../../components/ui/card"
+import { Button } from "../../../components/ui/button"
 import { Code2, Building2, Briefcase } from "lucide-react"
 
 const departments = [

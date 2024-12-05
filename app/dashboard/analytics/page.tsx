@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useUser } from "@clerk/nextjs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
 import {
   BarChart,
   Bar,
@@ -16,7 +16,7 @@ import {
   Cell,
 } from "recharts";
 import { useAnalytics } from "@/hooks/use-analytics";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "../../../components/ui/skeleton";
 
 const COLORS = ["#4f46e5", "#7c3aed", "#2563eb", "#06b6d4", "#10b981"];
 
