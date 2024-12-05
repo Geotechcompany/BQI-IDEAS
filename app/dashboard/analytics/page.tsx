@@ -18,7 +18,10 @@ import {
 import { useAnalytics } from "@/hooks/use-analytics";
 import { Skeleton } from "../../../components/ui/skeleton";
 
-const COLORS = ["#4f46e5", "#7c3aed", "#2563eb", "#06b6d4", "#10b981"];
+const COLORS = [
+  "#4f46e5", "#7c3aed", "#2563eb", "#06b6d4", "#10b981", 
+  "#fbbf24", "#ef4444", "#3b82f6", "#9333ea", "#34d399"
+]
 
 function StatCard({
   title,
@@ -67,17 +70,17 @@ export default function AnalyticsPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="container mx-auto px-6 py-8"
+      className="container mx-auto px-4 py-8 flex flex-col items-center"
     >
       <motion.h1
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="text-4xl font-bold text-indigo-900 mb-8"
+        className="text-3xl md:text-4xl font-bold text-indigo-900 mb-8 text-center"
       >
         Analytics Dashboard
       </motion.h1>
 
-      <div className="grid gap-6 md:grid-cols-3 mb-8">
+      <div className="grid gap-6 md:grid-cols-3 sm:grid-cols-2 mb-8 w-full">
         <StatCard
           title="Total Ideas"
           value={data?.totals?.total}
@@ -95,7 +98,7 @@ export default function AnalyticsPage() {
         />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 sm:grid-cols-1 w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -103,20 +106,16 @@ export default function AnalyticsPage() {
         >
           <h2 className="text-xl font-semibold mb-4">Ideas Performance</h2>
           {isLoading ? (
-            <Skeleton className="h-[300px] w-[500px]" />
+            <Skeleton className="h-[300px] w-full" />
           ) : (
-            <BarChart width={500} height={300} data={barData}>
+            <BarChart width={window.innerWidth < 640 ? 300 : 500} height={300} data={barData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="submitted" fill="#4f46e5" name="Submitted Ideas" />
-              <Bar
-                dataKey="implemented"
-                fill="#10b981"
-                name="Implemented Ideas"
-              />
+              <Bar dataKey="submitted" fill={COLORS[0]} name="Submitted Ideas" />
+              <Bar dataKey="implemented" fill={COLORS[1]} name="Implemented Ideas" />
             </BarChart>
           )}
         </motion.div>
@@ -128,15 +127,15 @@ export default function AnalyticsPage() {
         >
           <h2 className="text-xl font-semibold mb-4">Ideas by Department</h2>
           {isLoading ? (
-            <Skeleton className="h-[300px] w-[500px]" />
+            <Skeleton className="h-[300px] w-full" />
           ) : (
-            <PieChart width={500} height={300}>
+            <PieChart width={window.innerWidth < 640 ? 300 : 500} height={300}>
               <Pie
                 data={pieData}
-                cx={250}
-                cy={150}
+                cx="50%"
+                cy="50%"
                 innerRadius={60}
-                outerRadius={100}
+                outerRadius={80}
                 fill="#8884d8"
                 paddingAngle={5}
                 dataKey="value"

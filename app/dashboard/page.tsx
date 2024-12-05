@@ -94,7 +94,6 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 gap-4">
           <IdeasGrid 
             department={department}
-       // Show only recent 5 ideas
           />
         </div>
       </div>

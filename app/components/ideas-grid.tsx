@@ -132,13 +132,15 @@ export function IdeasGrid({ department }: IdeasGridProps) {
   });
  
   return (
-    <>
-      <div className="mb-6">
+    <div className="space-y-6 px-4 sm:px-0">
+   
+ 
+      <div className="w-full max-w-xs">
         <Select
           value={selectedDepartment}
           onValueChange={setSelectedDepartment}
         >
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Filter by department" />
           </SelectTrigger>
           <SelectContent>
@@ -150,47 +152,38 @@ export function IdeasGrid({ department }: IdeasGridProps) {
         </Select>
       </div>
  
-      {filteredIdeas?.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          No ideas found for this department.
-        </div>
-      )}
- 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {filteredIdeas?.map((idea) => (
           <motion.div
             key={idea.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            whileHover={{ y: -5 }}
             transition={{ duration: 0.2 }}
           >
-            <Card className="overflow-hidden border-2 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-xl text-indigo-900 font-bold">
+            <Card className="overflow-hidden border border-gray-200 hover:border-indigo-500/50 transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 sm:p-6">
+                <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="text-lg sm:text-xl text-indigo-900 font-bold line-clamp-2">
                       {idea.title}
                     </CardTitle>
-                    <p className="text-sm text-indigo-600 mt-1">
-                      Posted by { "User"}
+                    <p className="text-sm text-indigo-600">
+                      Posted by {user?.id === idea.author_id ? "You" : "Team Member"}
                     </p>
                   </div>
                   {user?.id === idea.author_id && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => setEditingIdea(idea.id)}
-                        >
+                        <DropdownMenuItem onClick={() => setEditingIdea(idea.id)}>
                           <Pencil className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem
+                        <DropdownMenuItem 
                           className="text-red-600"
                           onClick={() => handleDelete(idea.id)}
                         >
@@ -202,14 +195,14 @@ export function IdeasGrid({ department }: IdeasGridProps) {
                   )}
                 </div>
               </CardHeader>
- 
-              <CardContent className="pt-6">
-                <p className="text-gray-600 leading-relaxed">
+
+              <CardContent className="p-4 sm:p-6 space-y-4">
+                <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
                   {idea.description}
                 </p>
- 
+
                 {user?.id === idea.author_id && (
-                  <div className="mt-6">
+                  <div className="pt-4">
                     <IdeaNotes
                       ideaId={idea.id}
                       initialNotes={idea.notes}
@@ -228,67 +221,52 @@ export function IdeasGrid({ department }: IdeasGridProps) {
                     />
                   </div>
                 )}
- 
-                <div className="mt-6 flex justify-between items-center">
-                  <div className="flex gap-3">
-                    <Badge
-                      variant="outline"
-                      className={`${getCategoryColor(idea.category)} px-3 py-1`}
-                    >
-                      {idea.category}
-                    </Badge>
-                    <Badge
-                      variant="outline"
-                      className="bg-gray-50 text-gray-600 px-3 py-1"
-                    >
-                      {idea.status}
-                    </Badge>
-                    <Badge
-                      variant="outline"
-                      className="bg-indigo-50 text-indigo-600 px-3 py-1"
-                    >
-                      {idea.department}
-                    </Badge>
-                  </div>
-                  <span className="text-sm text-gray-500">
-                    {new Date(idea.created_at).toLocaleDateString()}
-                  </span>
+
+                <div className="flex flex-wrap gap-2 pt-4">
+                  <Badge variant="outline" className={`${getCategoryColor(idea.category)}`}>
+                    {idea.category}
+                  </Badge>
+                  <Badge variant="outline" className="bg-gray-50 text-gray-600">
+                    {idea.status}
+                  </Badge>
+                  <Badge variant="outline" className="bg-indigo-50 text-indigo-600">
+                    {idea.department}
+                  </Badge>
                 </div>
               </CardContent>
- 
-              <CardFooter className="flex flex-col gap-4 bg-gradient-to-r from-indigo-50/50 to-purple-50/50">
-                <div className="flex justify-between w-full">
-                  <div className="flex gap-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleLike(idea.id)}
-                      className={`hover:text-red-500 transition-colors ${
+
+              <CardFooter className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-indigo-50/50 to-purple-50/50 p-4 sm:p-6">
+                <div className="flex gap-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleLike(idea.id)}
+                    className={`hover:text-red-500 transition-colors ${
+                      idea.likes_by.some((like) => like.user_id === user?.id)
+                        ? "text-red-500"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    <Heart
+                      className={`h-4 w-4 mr-1 ${
                         idea.likes_by.some((like) => like.user_id === user?.id)
-                          ? "text-red-500"
-                          : "text-gray-600"
+                          ? "fill-current"
+                          : ""
                       }`}
-                    >
-                      <Heart
-                        className={`h-4 w-4 mr-1 ${
-                          idea.likes_by.some(
-                            (like) => like.user_id === user?.id
-                          )
-                            ? "fill-current"
-                            : ""
-                        }`}
-                      />
-                      {idea._count.likes_by}
-                    </Button>
- 
-                    <CommentSection
-                      ideaId={idea.id}
-                      comments={idea.comments}
-                      onCommentAdded={() => refreshIdeas()}
-                      onCommentDeleted={() => refreshIdeas()}
                     />
-                  </div>
+                    {idea._count.likes_by}
+                  </Button>
+
+                  <CommentSection
+                    ideaId={idea.id}
+                    comments={idea.comments}
+                    onCommentAdded={refreshIdeas}
+                    onCommentDeleted={refreshIdeas}
+                  />
                 </div>
+                <span className="text-sm text-gray-500">
+                  {new Date(idea.created_at).toLocaleDateString()}
+                </span>
               </CardFooter>
             </Card>
           </motion.div>
@@ -306,7 +284,7 @@ export function IdeasGrid({ department }: IdeasGridProps) {
           setEditingIdea(null);
         }}
       />
-    </>
+    </div>
   );
 }
  
