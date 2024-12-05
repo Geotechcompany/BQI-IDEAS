@@ -8,6 +8,18 @@
   display: none !important;
 }
 
+/* Hide Clerk development mode banner and branding */
+.cl-internal-b3fm6y,  /* Development mode banner */
+.cl-internal-uyu30m { /* "Secured by Clerk" footer */
+  display: none !important;
+}
+
+/* Hide any Clerk footers/powered by elements */
+.cl-footer,
+.cl-powered {
+  display: none !important;
+}
+
 /* Additional styles for better form appearance */
 .cl-card {
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;

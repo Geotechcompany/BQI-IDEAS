@@ -1,5 +1,6 @@
 import { SignIn } from "@clerk/nextjs"
 import Image from "next/image"
+import Link from "next/link"
 
 export default function SignInPage() {
   return (
@@ -55,6 +56,9 @@ export default function SignInPage() {
             redirectUrl="/dashboard"
             afterSignInUrl="/dashboard"
           />
+          <p className="mt-4 text-center text-sm text-gray-400">
+            Don’t have an account? <Link href="/sign-up" className="text-indigo-600">Sign up</Link>
+          </p>
         </div>
       </div>
     </div>

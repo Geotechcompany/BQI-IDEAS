@@ -1,30 +1,11 @@
 import { SignUp } from "@clerk/nextjs"
 import Image from "next/image"
+import Link from "next/link"
 
 export default function SignUpPage() {
   return (
     <div className="min-h-screen flex">
-      {/* Left side - Image/Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-indigo-600 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/90 to-purple-600/90" />
-        <div className="relative z-10 flex flex-col justify-center px-12">
-          <Image
-            src="/logo/bqilogo-light.png"
-            alt="BQI Logo"
-            width={120}
-            height={40}
-            className="mb-8"
-          />
-          <h1 className="text-4xl font-bold text-white mb-4">
-            Join BQI Innovation Hub
-          </h1>
-          <p className="text-indigo-100 text-lg">
-            Share your ideas, collaborate with colleagues, and make a difference in our organization.
-          </p>
-        </div>
-      </div>
-
-      {/* Right side - Sign Up Form */}
+      {/* Left side - Sign Up Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
         <div className="w-full max-w-md">
           <SignUp
@@ -55,6 +36,29 @@ export default function SignUpPage() {
             redirectUrl="/dashboard"
             afterSignUpUrl="/dashboard"
           />
+          <p className="mt-4 text-center text-sm text-gray-400">
+            Already have an account? <Link href="/sign-in" className="text-indigo-600 hover:text-indigo-700">Sign in</Link>
+          </p>
+        </div>
+      </div>
+
+      {/* Right side - Image/Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-indigo-600 relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/90 to-purple-600/90" />
+        <div className="relative z-10 flex flex-col justify-center px-12">
+          <Image
+            src="/logo/bqilogo-light.png"
+            alt="BQI Logo"
+            width={120}
+            height={40}
+            className="mb-8"
+          />
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Join BQI Innovation Hub
+          </h1>
+          <p className="text-indigo-100 text-lg">
+            Share your ideas, collaborate with colleagues, and make a difference in our organization.
+          </p>
         </div>
       </div>
     </div>

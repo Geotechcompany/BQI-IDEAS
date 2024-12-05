@@ -15,7 +15,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        elements: {
+          footer: "hidden",
+          powerButton: "hidden",
+        }
+      }}
+    >
       <html lang="en" className="h-full">
         <body className={`${inter.className} h-full`}>
           <div className="min-h-screen bg-gray-50">
